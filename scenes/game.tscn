@@ -41,6 +41,9 @@ one_shot = true
 wait_time = 0.5
 one_shot = true
 
+[connection signal="score_updated" from="grid" to="top_ui" method="_on_score_updated"]
+[connection signal="steps_updated" from="grid" to="top_ui" method="_on_steps_updated"]
+[connection signal="time_updated" from="grid" to="top_ui" method="_on_time_updated"]
 [connection signal="timeout" from="destroy_timer" to="grid" method="_on_destroy_timer_timeout"]
 [connection signal="timeout" from="collapse_timer" to="grid" method="_on_collapse_timer_timeout"]
 [connection signal="timeout" from="refill_timer" to="grid" method="_on_refill_timer_timeout"]

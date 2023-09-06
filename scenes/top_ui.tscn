@@ -7,10 +7,12 @@
 [sub_resource type="LabelSettings" id="LabelSettings_yrpvj"]
 font = ExtResource("2_pei76")
 font_size = 24
+font_color = Color(0.847059, 0.92549, 1, 1)
 
 [sub_resource type="LabelSettings" id="LabelSettings_8bjlm"]
 font = ExtResource("2_pei76")
 font_size = 60
+font_color = Color(0.882353, 0.980392, 1, 1)
 
 [node name="top_ui" type="TextureRect"]
 offset_right = 576.0
@@ -24,8 +26,8 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 16.0
-offset_top = 18.0
-offset_right = -15.0
+offset_top = 25.0
+offset_right = -11.0
 offset_bottom = -49.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -39,19 +41,22 @@ alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 5
-text = "000"
+text = "00"
 label_settings = SubResource("LabelSettings_yrpvj")
 horizontal_alignment = 1
 
-[node name="counter_label" type="Label" parent="MarginContainer/HBoxContainer"]
+[node name="count_label" type="Label" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 5
-text = "00"
+text = "10"
 label_settings = SubResource("LabelSettings_8bjlm")
 horizontal_alignment = 1
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer"]
+[node name="maxPoint_label" type="Label" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 5
+text = "MAX: 2000"
+label_settings = SubResource("LabelSettings_yrpvj")
+horizontal_alignment = 1

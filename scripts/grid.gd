@@ -11,6 +11,9 @@ var state
 @export var y_start: int
 @export var offset: int
 @export var y_offset: int
+@export var time_mode: bool = true
+@export var time = 30 #tiempo inicial en segundos
+@export var max_move = 10
 
 # piece array
 var possible_pieces = [
@@ -23,23 +26,27 @@ var possible_pieces = [
 ]
 # current pieces in scene
 var all_pieces = []
-
-# swap back
 var piece_one = null
 var piece_two = null
 var last_place = Vector2.ZERO
 var last_direction = Vector2.ZERO
 var move_checked = false
-
-# touch variables
 var first_touch = Vector2.ZERO
 var final_touch = Vector2.ZERO
 var is_controlling = false
+var actual_score = 0
+var streacks = 1
+var bonus = 30
+var flag_move = false
 
-# scoring variables and signals
-
+signal score_updated(new_score)
 
 # counter variables and signals
+
+signal time_updated(new_time)
+
+var movimientos_actuales = 0 
+signal steps_updated(new_steps)
 
 
 # Called when the node enters the scene tree for the first time.
@@ -128,8 +135,24 @@ func swap_pieces(column, row, direction: Vector2):
 	#other_piece.position = grid_to_pixel(column, row)
 	first_piece.move(grid_to_pixel(column + direction.x, row + direction.y))
 	other_piece.move(grid_to_pixel(column, row))
+	# Verifica si el intercambio es válido antes de proceder
 	if not move_checked:
 		find_matches()
+	else: 
+		streacks = 1
+		bonus = 30
+		flag_move = false
+ 
+func correct_move():
+	actual_score += bonus 
+	streacks += 1 
+	bonus = 30 * streacks
+	emit_signal("score_updated", actual_score)
+
+func incorrect_move():
+	streacks = 1
+	bonus = 30
+	emit_signal("score_updated", actual_score)
 
 func store_info(first_piece, other_piece, place, direction):
 	piece_one = first_piece
@@ -160,6 +183,13 @@ func touch_difference(grid_1, grid_2):
 func _process(delta):
 	if state == MOVE:
 		touch_input()
+		if time_mode:
+			time -= delta
+			if time <= 0:
+				game_over()
+			else:
+				emit_signal("time_updated", time)
+		game_win()
 
 func find_matches():
 	for i in width:
@@ -205,8 +235,8 @@ func destroy_matched():
 				was_matched = true
 				all_pieces[i][j].queue_free()
 				all_pieces[i][j] = null
-				
 	move_checked = true
+	flag_move = was_matched
 	if was_matched:
 		get_parent().get_node("collapse_timer").start()
 	else:
@@ -216,7 +246,6 @@ func collapse_columns():
 	for i in width:
 		for j in height:
 			if all_pieces[i][j] == null:
-				print(i, j)
 				# look above
 				for k in range(j + 1, height):
 					if all_pieces[i][k] != null:
@@ -251,27 +280,41 @@ func refill_columns():
 	check_after_refill()
 
 func check_after_refill():
-	for i in width:
-		for j in height:
+	for i in range(width):
+		for j in range(height):
 			if all_pieces[i][j] != null and match_at(i, j, all_pieces[i][j].color):
 				find_matches()
 				get_parent().get_node("destroy_timer").start()
 				return
 	state = MOVE
-	
+	if not time_mode:  
+		if movimientos_actuales < max_move:
+			movimientos_actuales += 1  
+			emit_signal("steps_updated", max_move - movimientos_actuales)  
+		if movimientos_actuales >= max_move:
+			game_over()
 	move_checked = false
 
-func _on_destroy_timer_timeout():
-	print("destroy")
+func _on_destroy_timer_timeout():  
 	destroy_matched()
 
 func _on_collapse_timer_timeout():
-	print("collapse")
+	if flag_move:
+		correct_move()
+	else:
+		incorrect_move()
 	collapse_columns()
 
 func _on_refill_timer_timeout():
 	refill_columns()
-	
+
 func game_over():
 	state = WAIT
-	print("game over")
+	time = 0 
+	max_move = 0  
+	print("GAME OVER")
+	
+func game_win():
+	if actual_score >= 700:
+		state = WAIT
+		print("YOU WIN")
